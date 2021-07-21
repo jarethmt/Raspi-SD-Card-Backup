@@ -42,12 +42,12 @@ echo "Please wait, starting..."
 sleep 5;
 date=$(date '+%m-%d-%Y %H:%M:%S')
 filename="raspi-sd-backup-${date}.img"
-imgclone -d filename
+imgclone -d "$filename"
 
 
 ##### NOW AUTHORIZE TO B2 AND UPLOAD THIS BITCH #####
-b2 authorize-account $key_id $application_key
-b2 upload-file $bucket_name "./$filename" $filename
+b2 authorize-account "$key_id" "$application_key"
+b2 upload-file "$bucket_name" "./$filename" "$filename"
 
 ## Finally, delete the local file ##
-rm $filename
+rm "$filename"
