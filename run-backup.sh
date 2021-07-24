@@ -42,7 +42,6 @@ echo "Please wait, starting..."
 sleep 5;
 date=$(date '+%m-%d-%Y %H:%M:%S')
 filename="raspi-sd-backup-${date}.img"
-imgclone -d "$filename"
 
 #shut down Apache to prevent changes to the FS
 systemctl stop apache2
