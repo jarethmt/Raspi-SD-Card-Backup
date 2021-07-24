@@ -56,6 +56,12 @@ systemctl start apache2
 
 ##### NOW AUTHORIZE TO B2 AND UPLOAD THIS BITCH #####
 b2 authorize-account "$key_id" "$application_key"
+# first clear out the bucket
+mkdir empty
+cd empty
+b2 sync --delete . "b2://${bucket_name}"
+cd ..
+rm -rf empty
 b2 upload-file "$bucket_name" "./$filename" "$filename"
 
 ## Finally, delete the local file ##
