@@ -44,6 +44,16 @@ date=$(date '+%m-%d-%Y %H:%M:%S')
 filename="raspi-sd-backup-${date}.img"
 imgclone -d "$filename"
 
+#shut down Apache to prevent changes to the FS
+systemctl stop apache2
+
+#change into the hard drive mount and run the backup there...
+cd /mnt/raid
+imgclone -d "$filename"
+
+#start apache back up
+systemctl start apache2
+
 
 ##### NOW AUTHORIZE TO B2 AND UPLOAD THIS BITCH #####
 b2 authorize-account "$key_id" "$application_key"
