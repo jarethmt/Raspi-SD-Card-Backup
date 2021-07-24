@@ -9,3 +9,7 @@ This code was developed by me in order to backup my Raspi SD card OS to a cloud 
 Future version roadmap:
  - Remove reliance on local external drive for backup to work
  - Work on improving compatibility with other mainstream cloud providers
+
+Use example:
+
+`./run-backup.sh --key_id="987654321" --application_key="123456789" --bucket_name="YOUR-BUCKET-NAME"`
