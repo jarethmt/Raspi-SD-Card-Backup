@@ -12,4 +12,4 @@ Future version roadmap:
 
 Use example:
 
-`./run-backup.sh --key_id="987654321" --application_key="123456789" --bucket_name="YOUR-BUCKET-NAME"`
+`./run-backup.sh --key_id="987654321" --application_key="123456789" --bucket_name="YOUR-BUCKET-NAME" --external_drive="/mnt/your-drive" --skip_sd=false`

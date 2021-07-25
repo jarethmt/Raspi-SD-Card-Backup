@@ -13,6 +13,12 @@ while [ $# -gt 0 ]; do
     --bucket_name=*)
       bucket_name="${1#*=}"
       ;;
+    --external_drive=*)
+      external_drive="${1#*=}"
+      ;;
+    --skip_sd=*)
+      skip_sd="${1#*=}"
+      ;;
     *)
       printf "***************************\n"
       printf "* Error: Invalid argument.*\n"
@@ -34,35 +40,39 @@ if [ -z "$bucket_name" ]; then
         echo "YOU MUST SPECIFY A B2 BUCKET NAME"
         exit;
 fi
-
+if [ -z "$external_drive" ]; then
+	echo "YOU MUST SPECIFY A MOUNTED EXTERNAL DRIVE AS AN INTERMEDIARY FOR THE CLOUD BACKUP"
+	exit;
+fi
 
 
 echo "THIS SCRIPT DEPENDS ON BACKBLAZE'S B2 COMMAND TO WORK! MAKE SURE TO INSTALL IT ON YOUR SYSTEM BEFORE RUNNING!"
 echo "Please wait, starting..."
 sleep 5;
-date=$(date '+%m-%d-%Y %H:%M:%S')
-filename="raspi-sd-backup-${date}.img"
 
-#shut down Apache to prevent changes to the FS
-systemctl stop apache2
+#MOVE INTO THE EXTERNAL DRIVE
+cd "$external_drive"
 
-#change into the hard drive mount and run the backup there...
-cd /mnt/raid
-imgclone -d "$filename"
+if [ -z "$skip_sd" ]; then
+	date=$(date '+%m-%d-%Y %H:%M:%S')
+	filename="raspi-sd-backup-${date}.img"
 
-#start apache back up
-systemctl start apache2
+	#shut down Apache to prevent changes to the FS
+	systemctl stop apache2
+	
+	#change into the hard drive mount and run the backup there...
+	imgclone -d "$filename"
+	
+	#start apache back up
+	systemctl start apache2
+fi	
 
 
 ##### NOW AUTHORIZE TO B2 AND UPLOAD THIS BITCH #####
 b2 authorize-account "$key_id" "$application_key"
-# first clear out the bucket
-mkdir empty
-cd empty
-b2 sync --allowEmptySource --delete . "b2://${bucket_name}"
-cd ..
-rm -rf empty
-b2 upload-file "$bucket_name" "./$filename" "$filename"
+b2 sync --replaceNewer --allowEmptySource --delete . "b2://${bucket_name}"
 
 ## Finally, delete the local file ##
-rm "$filename"
+##LEAVING IT FOR NOW FOR EXTRA BACKUP!##
+#rm "$filename"
+
