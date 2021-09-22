@@ -1,5 +1,5 @@
 #!/bin/bash
-
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 #get all args and make sure they're specified first
 
 while [ $# -gt 0 ]; do
@@ -50,21 +50,20 @@ echo "THIS SCRIPT DEPENDS ON BACKBLAZE'S B2 COMMAND TO WORK! MAKE SURE TO INSTAL
 echo "Please wait, starting..."
 sleep 5;
 
+
+#shut down Apache to prevent changes to the FS
+systemctl stop apache2
+
 #MOVE INTO THE EXTERNAL DRIVE
 cd "$external_drive"
 
 if [ -z "$skip_sd" ]; then
 	date=$(date '+%m-%d-%Y %H:%M:%S')
 	filename="raspi-sd-backup-${date}.img"
-
-	#shut down Apache to prevent changes to the FS
-	systemctl stop apache2
 	
 	#change into the hard drive mount and run the backup there...
 	imgclone -d "$filename"
 	
-	#start apache back up
-	systemctl start apache2
 fi	
 
 
@@ -76,3 +75,6 @@ b2 sync --replaceNewer --allowEmptySource --delete . "b2://${bucket_name}"
 ##LEAVING IT FOR NOW FOR EXTRA BACKUP!##
 #rm "$filename"
 
+
+#start apache2 back up
+systemctl start apache2
