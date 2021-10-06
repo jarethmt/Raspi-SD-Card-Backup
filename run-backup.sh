@@ -51,30 +51,37 @@ echo "Please wait, starting..."
 sleep 5;
 
 
-#shut down Apache to prevent changes to the FS
-systemctl stop apache2
 
-#MOVE INTO THE EXTERNAL DRIVE
-cd "$external_drive"
 
-if [ -z "$skip_sd" ]; then
-	date=$(date '+%m-%d-%Y %H:%M:%S')
-	filename="raspi-sd-backup-${date}.img"
+if grep -qs '/mnt/raid ' /proc/mounts; then
+
+	#shut down Apache to prevent changes to the FS
+	systemctl stop apache2
+
+	#MOVE INTO THE EXTERNAL DRIVE
+	cd "$external_drive"
+
+	if [ -z "$skip_sd" ]; then
+		date=$(date '+%m-%d-%Y %H:%M:%S')
+		filename="raspi-sd-backup-${date}.img"
+		
+		#change into the hard drive mount and run the backup there...
+		imgclone -d "$filename"
 	
-	#change into the hard drive mount and run the backup there...
-	imgclone -d "$filename"
+	fi	
+
 	
-fi	
+	##### NOW AUTHORIZE TO B2 AND UPLOAD THIS BITCH #####
+	b2 authorize-account "$key_id" "$application_key"
+	b2 sync --replaceNewer --allowEmptySource --delete . "b2://${bucket_name}"
+	
+	## Finally, delete the local file ##
+	##LEAVING IT FOR NOW FOR EXTRA BACKUP!##
+	#rm "$filename"
 
 
-##### NOW AUTHORIZE TO B2 AND UPLOAD THIS BITCH #####
-b2 authorize-account "$key_id" "$application_key"
-b2 sync --replaceNewer --allowEmptySource --delete . "b2://${bucket_name}"
-
-## Finally, delete the local file ##
-##LEAVING IT FOR NOW FOR EXTRA BACKUP!##
-#rm "$filename"
-
-
-#start apache2 back up
-systemctl start apache2
+	#start apache2 back up
+	systemctl start apache2
+else
+	echo "External drive not mounted! exiting script to prevent data loss"
+fi
