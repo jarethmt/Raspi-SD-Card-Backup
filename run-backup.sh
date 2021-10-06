@@ -53,7 +53,7 @@ sleep 5;
 
 
 
-if grep -qs '/mnt/raid ' /proc/mounts; then
+if grep -qs "$external_drive" /proc/mounts; then
 
 	#shut down Apache to prevent changes to the FS
 	systemctl stop apache2
