@@ -57,6 +57,7 @@ if grep -qs "$external_drive" /proc/mounts; then
 
 	#shut down Apache to prevent changes to the FS
 	systemctl stop apache2
+	systemctl stop mysql
 
 	#MOVE INTO THE EXTERNAL DRIVE
 	cd "$external_drive"
@@ -82,6 +83,7 @@ if grep -qs "$external_drive" /proc/mounts; then
 
 	#start apache2 back up
 	systemctl start apache2
+	systemctl start mysql
 else
 	echo "External drive not mounted! exiting script to prevent data loss"
 fi
